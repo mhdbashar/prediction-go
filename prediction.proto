@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package prediction;
+
+option go_package = "./prediction";
+
+message PredictionRequest {
+  string micorservice_name = 1;  
+  repeated double measurements = 2;
+  string history = 3;
+  string stepDuration = 4;
+  int32 predictVerticalWindow = 5; 
+  int32 predictHorizontalWindow = 6;
+}
+
+message PredictionResponse {
+  int32 result = 1;
+}
+
+service PredictionService {
+  rpc ProcessData(PredictionRequest) returns (PredictionResponse);
+}
