@@ -45,7 +45,7 @@ func main() {
 	promdata1 := PromMetaData{promAdd: "http://10.10.10.80:30909",
 	history:"-14d",
 	stepDuration:"2m",
-	query:"sum(rate(nginx_ingress_controller_requests{path='/fib'}[2m]))",
+	query:"sum(rate(nginx_ingress_controller_requests{path='/fib'}[2m]))*60*2",
 	}
 
     //prom query
@@ -58,21 +58,20 @@ func main() {
 
 	client := prediction.NewPredictionServiceClient(conn)
 
-    name := "Mhdbashar"
 	requestData := &prediction.PredictionRequest{
-		micorservice_name: "testMicroService",
-  		measurements: out,
-  		history: "14d",
-        stepDuration: "15m",
-  		predictVerticalWindow: int32(3),
-  		predictHorizontalWindow: int32(8),
+		MicorserviceName: "testMicroService",
+  		Measurements: out,
+  		History: "14d",
+        StepDuration: "15m",
+  		PredictVerticalWindow: int32(3),
+  		PredictHorizontalWindow: int32(8),
     }
     response, err := client.ProcessData(context.Background(), requestData )
     if err != nil {
         log.Fatalf("Error calling ProcessData: %v", err)
     }
 
-    fmt.Printf("Response: %s\n", response.Message)
+    fmt.Println("Response: ", response.Result)
 
 
 }
