@@ -39,16 +39,7 @@ func main() {
     }
     defer conn.Close()
 
-    client := greet.NewGreeterClient(conn)
-
-    name := "Mhdbashar"
-    response, err := client.SayHello(context.Background(), &greet.HelloRequest{Name: name})
-    if err != nil {
-        log.Fatalf("Error calling SayHello: %v", err)
-    }
-
-    fmt.Printf("Response: %s\n", response.Message)
-
+    
 
 	//example of promdata
 	promdata1 := PromMetaData{promAdd: "http://10.10.10.80:30909",
@@ -63,7 +54,26 @@ func main() {
     
     out, err :=parsePrometheusResult(result)
     
-    fmt.Println(out)
+    // fmt.Println(out)
+
+	client := prediction.NewPredictionServiceClient(conn)
+
+    name := "Mhdbashar"
+	requestData := &prediction.PredictionRequest{
+		micorservice_name: "testMicroService",
+  		measurements: out,
+  		history: "14d",
+        stepDuration: "15m",
+  		predictVerticalWindow: int32(3),
+  		predictHorizontalWindow: int32(8),
+    }
+    response, err := client.ProcessData(context.Background(), requestData )
+    if err != nil {
+        log.Fatalf("Error calling ProcessData: %v", err)
+    }
+
+    fmt.Printf("Response: %s\n", response.Message)
+
 
 }
 
