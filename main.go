@@ -15,8 +15,6 @@ import (
 
 	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
-	// tc "github.com/dysnix/predictkube-libs/external/types_convertation"
-    // "github.com/dysnix/predictkube-proto/external/proto/commonproto"
 	"github.com/prometheus/common/model"
 
 
@@ -43,11 +41,13 @@ func main() {
 
 	//example of promdata
 	promdata1 := PromMetaData{promAdd: "http://10.10.10.80:30909",
-	history:"-14d",
-	stepDuration:"2m",
-	query:"sum(rate(nginx_ingress_controller_requests{path='/fib'}[2m]))*60*2",
+	history:"1d",
+	stepDuration:"1m",
+	query:"sum(rate(nginx_ingress_controller_requests{path='/fib'}[1m]))*60*1",
 	}
 
+	for {
+		
     //prom query
 	result := promdata1.doQuery()
 	// fmt.Printf("Result:\n%v\n",result)
@@ -61,9 +61,9 @@ func main() {
 	requestData := &prediction.PredictionRequest{
 		MicorserviceName: "testMicroService",
   		Measurements: out,
-  		History: "14d",
-        StepDuration: "15m",
-  		PredictVerticalWindow: int32(3),
+  		History: promdata1.history,
+        StepDuration: promdata1.stepDuration,
+  		PredictVerticalWindow: int32(1),
   		PredictHorizontalWindow: int32(8),
     }
     response, err := client.ProcessData(context.Background(), requestData )
@@ -72,7 +72,10 @@ func main() {
     }
 
     fmt.Println("Response: ", response.Result)
-
+	//sleep
+	duration := 60 * time.Second
+	time.Sleep(duration)
+	}
 
 }
 
@@ -100,7 +103,7 @@ func (pmeta *PromMetaData) doQuery () (model.Value) {
     }
 
 	r := v1.Range{
-		Start: currentTime.Add(hist),
+		Start: currentTime.Add(-hist),
 		End:   currentTime,
 		Step:  step,
 	}
